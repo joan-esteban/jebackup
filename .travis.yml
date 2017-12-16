@@ -4,4 +4,6 @@ before_script:
     - curl -L "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shunit2/shunit2-2.1.6.tgz" | tar zx
     
 script:
+    - chmod a+x integration_test/*
+    - chmod a+x bin/*
     - ./integration_test/test_basic_functionality.sh
