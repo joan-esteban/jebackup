@@ -6,7 +6,7 @@ Simple backup system based on tgz differentials written in bash.
 
 It is composed by two parts:
 - jebackup.sh : Do the incremental backup in tgz files
-- rotate.sh : Take care of old backup removing it
+- jerotate.sh : Take care of old backup removing it
 
 
 # Quick setup
