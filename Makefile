@@ -20,5 +20,7 @@ clean:
 release: test
 	tar -zcvf jebackup-0.9.0.tgz bin/ integration_test/ Makefile
 
+fixcrlf:
+	find -iname "*.sh" -exec dos2unix {} \;
 	
 

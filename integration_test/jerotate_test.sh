@@ -13,6 +13,8 @@ source ${JEBACKUP_LIBS}/logger.sh
 function setUp(){
 	__TMP_FOLDER_BACKUPS=$(mktemp -d)
 	VERBOSE "setting up test: created empty folder to store backups: $__TMP_FOLDER_TO_STORE_BACK"
+	
+	
 }
 
 function tearDown(){
@@ -42,13 +44,13 @@ function inflate_file_size(){
 #[OUT  ] -rw-rw-r-- 1 zodiac zodiac 3,0M dic 17 11:13 backup-20171217-1513505621.tgz
 #[OUT  ] -rw-rw-r-- 1 zodiac zodiac 20K dic 17 11:13 master.incremental
 
-function inflate_false_backup_plain_folder(){
+function inflate_fake_backup_plain_folder(){
 	inflate_file_size $__TMP_FOLDER_BACKUPS/master.incremental 20
 	local __TSTAMP=$(date +%s)
 	for I in $(seq 1 5); do
 		local __FILE=$(date -d @${__TSTAMP} +backup-%Y%m%d-%s.tgz)
 		
-		inflate_file_size $__TMP_FOLDER_BACKUPS/${__FILE} 3000
+		inflate_file_size $__TMP_FOLDER_BACKUPS/${__FILE} 3072
 		touch -m -d "@${__TSTAMP}" $__TMP_FOLDER_BACKUPS/${__FILE}
 		__TSTAMP=$((__TSTAMP - 86400))
 		
@@ -68,9 +70,15 @@ function DISABLED_test_fails_params() {
 	assertEquals $? 1
 }
 
-function test_maximum_size() {
-	inflate_false_backup_plain_folder
-	$JEROTATE  -d $__TMP_FOLDER_BACKUPS -m maximum_size -s ROTATE_MAXIMUM_SIZE_TARGET_MB=3 -s NO_REMOVE_FILES_NEWER_THRESHOLD_SECONDS=120 -v
+function test_maximum_size_doesnt_count_no_backup_files() {
+	inflate_fake_backup_plain_folder
+	inflate_file_size $__TMP_FOLDER_BACKUPS/no_back_file_of_5mb 5000
+	$JEROTATE  -d $__TMP_FOLDER_BACKUPS -m maximum_size -s ROTATE_MAXIMUM_SIZE_TARGET_MB=3 -s NO_REMOVE_FILES_NEWER_THRESHOLD_SECONDS=120  -s RECURSIVE_BACKUP_FILES=0 -v -r ${__TMP_FOLDER_BACKUPS}/results
+	assertEquals "jerotate returns error" $? 0
+	cat  ${__TMP_FOLDER_BACKUPS}/results | LOG_OUTPUT_FILTER 
+	. ${__TMP_FOLDER_BACKUPS}/results
+	
+	assertEquals $RESULT_ROTATE_ORIGINAL_SIZE_BACKUP_MB "15"
 }
 
 set_logger_level $LOG_LEVEL_WARNING_CTE

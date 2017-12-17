@@ -4,7 +4,7 @@ source $(dirname $0)/lib/logger.sh
 source $(dirname $0)/lib/assert.sh
 
 function show_help(){
-	echo "$0 -s <source_folder> -d <dest_folder> -v"
+	echo "$0 -s <source_folder> -d <dest_folder> -v -r <result file> -X <exclude patterns> -f <pattern bck file> -v -u -h"
 	echo " "
 	echo " -c <config file>     : file with params"
 	echo " -s <source_folder>   : folder that you want to backup (SOURCE_FOLDER)"
@@ -47,6 +47,7 @@ function get_args_params(){
 				;;
 			h)	
 				show_help
+				exit 0
 				;;
 			:)
 				ERROR "param -$OPTARG required a parameter, check help with $0 -h"
