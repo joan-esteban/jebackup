@@ -135,7 +135,7 @@ VERBOSE "Discard finish working"
 
 if [ ! -z $RESULT_FILE ] ; then
 	output_result_rotate > $RESULT_FILE 
-	output_result_discard > $RESULT_FILE
+	output_result_discard >> $RESULT_FILE
 else
 	output_result_rotate
 	output_result_discard
