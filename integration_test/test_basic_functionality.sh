@@ -20,12 +20,12 @@ function filter_progress(){
 
 
 function setUp(){
-	__TMP_DATA_TO_BACK=$(mktemp -d)
-	VERBOSE "setting up test: copying data to: $__TMP_DATA_TO_BACK"
-	cp -av ${DATASET}/set1 $__TMP_DATA_TO_BACK > /dev/null 2>&1
+	__TMP_DATA_TO_BACKUP=$(mktemp -d)
+	VERBOSE "setting up test: copying data to: $__TMP_DATA_TO_BACKUP"
+	cp -av ${DATASET}/set1 $__TMP_DATA_TO_BACKUP > /dev/null 2>&1
 	
-	__TMP_FOLDER_TO_STORE_BACK=$(mktemp -d)
-	VERBOSE "setting up test: created empty folder to store backups: $__TMP_FOLDER_TO_STORE_BACK"
+	__TMP_FOLDER_TO_STORE_BACKUP=$(mktemp -d)
+	VERBOSE "setting up test: created empty folder to store backups: $__TMP_FOLDER_TO_STORE_BACKUP"
 
 	__TMP_WORKING_FOLDER=$(mktemp -d)
 	VERBOSE "setting up test: created empty folder for temporal work: $__TMP_WORKING_FOLDER"
@@ -33,13 +33,13 @@ function setUp(){
 }
 
 function tearDown(){
-	if [ ! -z $__TMP_DATA_TO_BACK ]; then
-		VERBOSE "tearing down test: erasing $__TMP_DATA_TO_BACK"
-		rm -Rf $__TMP_DATA_TO_BACK
+	if [ ! -z $__TMP_DATA_TO_BACKUP ]; then
+		VERBOSE "tearing down test: erasing $__TMP_DATA_TO_BACKUP"
+		rm -Rf $__TMP_DATA_TO_BACKUP
 	fi
-	if [ ! -z $__TMP_FOLDER_TO_STORE_BACK ]; then
-		VERBOSE "tearing down test: erasing $__TMP_FOLDER_TO_STORE_BACK"
-		rm -Rf $__TMP_FOLDER_TO_STORE_BACK
+	if [ ! -z $__TMP_FOLDER_TO_STORE_BACKUP ]; then
+		VERBOSE "tearing down test: erasing $__TMP_FOLDER_TO_STORE_BACKUP"
+		rm -Rf $__TMP_FOLDER_TO_STORE_BACKUP
 	fi
 	if [ ! -z $__TMP_WORKING_FOLDER ]; then
 		VERBOSE "tearing down test: erasing $__TMP_WORKING_FOLDER"
@@ -108,61 +108,60 @@ DISABLED_test_fails_params() {
 	assertEquals $? 1
 }
 
-
-
-test_first_backup() {
-	
-	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACK/result.txt
-	VERBOSE using folder "[$__TMP_FOLDER_TO_STORE_BACK]"
-	$SNAPSHOT -s $__TMP_DATA_TO_BACK -d $__TMP_FOLDER_TO_STORE_BACK -r $_RESULT_FILE 
+test_first_backup_do_a_full_backup_that_can_reproduce_backup_folder() {
+	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACKUP/result.txt
+	VERBOSE using folder "[$__TMP_FOLDER_TO_STORE_BACKUP]"
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE 
 	assertEquals "jbackup returns error" $? 0
 
 	. $_RESULT_FILE 
 	VERBOSE "generated tgz: $DELTA_BACKUP_RESULT"
-	check_tgz_exact_as_original_folder  "$__TMP_DATA_TO_BACK" "$DELTA_BACKUP_RESULT"
+	check_tgz_exact_as_original_folder  "$__TMP_DATA_TO_BACKUP" "$DELTA_BACKUP_RESULT"
 	
 }
 
 test_two_backups_with_modifications() {
 	LOG "Testing that modified files are stored on delta backup"
-	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACK/result.txt
+	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACKUP/result.txt
 	local __TGZS=""
 
-	$SNAPSHOT -s $__TMP_DATA_TO_BACK -d $__TMP_FOLDER_TO_STORE_BACK -r $_RESULT_FILE 
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE 
 	assertEquals "jbackup returns error" $? 0
 	. $_RESULT_FILE 
 	__TGZS=$DELTA_BACKUP_RESULT
 	VERBOSE "generated tgz: $DELTA_BACKUP_RESULT"
 
 	VERBOSE "Changing a file"
-	echo "another line" >> $__TMP_DATA_TO_BACK/readme.txt
+	echo "another line" >> $__TMP_DATA_TO_BACKUP/readme.txt
 
 	VERBOSE "Generating day 2"
-	$SNAPSHOT -s $__TMP_DATA_TO_BACK -d $__TMP_FOLDER_TO_STORE_BACK -r $_RESULT_FILE 
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE 
 	assertEquals "jbackup returns error" $? 0
 	. $_RESULT_FILE 
 	__TGZS="$__TGZS $DELTA_BACKUP_RESULT"
 
 	VERBOSE "generated tgzs: $__TGZS"
-	check_tgz_exact_as_original_folder  "$__TMP_DATA_TO_BACK" $__TGZS
+	check_tgz_exact_as_original_folder  "$__TMP_DATA_TO_BACKUP" $__TGZS
 	
 }
 
 test_backup_with_pattern_filename_that_implies_create_folder() {
-	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACK/result.txt
-	$SNAPSHOT -s $__TMP_DATA_TO_BACK -d $__TMP_FOLDER_TO_STORE_BACK -r $_RESULT_FILE  -f "FOLDER/%Y%m%d-%s"
+	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACKUP/result.txt
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE  -f "FOLDER/%Y%m%d-%s"
 	assertEquals "jbackup returns error" $? 0
-	local __EXPECTED_FOLDER="${__TMP_FOLDER_TO_STORE_BACK}/FOLDER"
+	local __EXPECTED_FOLDER="${__TMP_FOLDER_TO_STORE_BACKUP}/FOLDER"
 	assertTrue "subfolder $__EXPECTED_FOLDER must be created"  "[ -d $__EXPECTED_FOLDER ]"
 }
 
 test_exclude_pattern(){
-	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACK/result.txt
-	$SNAPSHOT -s $__TMP_DATA_TO_BACK -d $__TMP_FOLDER_TO_STORE_BACK -r $_RESULT_FILE  -X "*.txt"
+	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACKUP/result.txt
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE  -X "*.txt"
 	assertEquals "jbackup returns error" $? 0
 	. $_RESULT_FILE 
-	check_tgz_like_original_folder_with_exclusions  "$__TMP_DATA_TO_BACK" "$DELTA_BACKUP_RESULT" --exclude "*.txt"
+	check_tgz_like_original_folder_with_exclusions  "$__TMP_DATA_TO_BACKUP" "$DELTA_BACKUP_RESULT" --exclude "*.txt"
 }
+
+
 
 set_logger_level $LOG_LEVEL_WARNING_CTE
 source $SHUNIT2
