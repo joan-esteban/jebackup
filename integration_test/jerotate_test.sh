@@ -70,13 +70,22 @@ function DISABLED_test_fails_params() {
 	assertEquals $? 1
 }
 
-function test_maximum_size_doesnt_count_no_backup_files() {
+function test_maximum_size_method_doesnt_count_no_backup_files() {
 	inflate_fake_backup_plain_folder
 	inflate_file_size $__TMP_FOLDER_BACKUPS/no_back_file_of_5mb 5000
-	$JEROTATE  -d $__TMP_FOLDER_BACKUPS -m maximum_size -s ROTATE_MAXIMUM_SIZE_TARGET_MB=3 -s NO_REMOVE_FILES_NEWER_THRESHOLD_SECONDS=120  -s RECURSIVE_BACKUP_FILES=0 -v -r ${__TMP_FOLDER_BACKUPS}/results
+	inflate_file_size $__TMP_FOLDER_BACKUPS/another_tgz_but_is_not_a_backup.tgz 5000
+	$JEROTATE  -d $__TMP_FOLDER_BACKUPS -m maximum_size -s ROTATE_MAXIMUM_SIZE_TARGET_MB=3 -s NO_REMOVE_FILES_NEWER_THRESHOLD_SECONDS=120  -s RECURSIVE_BACKUP_FILES=0 -s PATTERN_BACKUP_FILES='backup-*.tgz' -v -r ${__TMP_FOLDER_BACKUPS}/results  -a remove
 	assertEquals "jerotate returns error" $? 0
+	VERBOSE "RESULT FILE:" 
+	VERBOSE "=================================="
 	cat  ${__TMP_FOLDER_BACKUPS}/results | LOG_OUTPUT_FILTER 
+	VERBOSE "----------------------------------[END RESULTS]"
 	. ${__TMP_FOLDER_BACKUPS}/results
+	# Output files have next vars:
+	# RESULT_ROTATE_ORIGINAL_SIZE_BACKUP_MB
+	# RESULT_ROTATE_REDUCED_SIZE_BACKUP_MB
+	# RESULT_ROTATE_REMOVE_FILES
+	# RESULT_ROTATE_GOAL_ACHIEVE
 	
 	assertEquals $RESULT_ROTATE_ORIGINAL_SIZE_BACKUP_MB "15"
 }
