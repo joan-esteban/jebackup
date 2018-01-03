@@ -106,7 +106,7 @@ ASSERT "[ ! -z $DEST_FOLDER ]" "you must set destination folder!"
 # TODO : In the future the engine could be changed
 source $(dirname $0)/lib/tgzengine.sh
 
-create_delta_backup "$SOURCE_FOLDER" "$DEST_FOLDER"
+create_delta_backup "$DEST_FOLDER" "$SOURCE_FOLDER" 
 
 if [ ! -z $RESULT_FILE ] ; then
 	output_result > $RESULT_FILE 

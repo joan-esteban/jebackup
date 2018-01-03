@@ -21,19 +21,20 @@ ASSERT_EXISTS_FUNCTION ASSERT "you must import assert.sh before use $0"
 
 
 # this function create a delta
-# $1 -> source_folder
-# $2 -> dest_folder (where must be control files)
+# $1 -> dest_folder (where must be control files)
+# $2 -> source_folder
 # return:
 # 	DELTA_BACKUP_RESULT= filename created with full path
 function create_delta_backup(){
-	local SOURCE=$1
-	local DEST=$2
+	local DEST=$1
+	local SOURCE=$2
+	
 	ASSERT "[ -d $SOURCE ]" source folder [$SOURCE] must exists
 	ASSERT "[ -d $DEST ]" destination folder [$DEST] must exists
 	__get_backup_filenames $DEST
-	ASSERT "[ ! -z $__BACKUP_DEST_FILENAME ]" "get_backup_dest_filename must return someting"
-	ASSERT "[ ! -e $__BACKUP_DEST_FILENAME ]" "get_backup_dest_filename returns [$__BACKUP_DEST_FILENAME] that exists, I'm not going to overwrite!"
-	ASSERT "[ ! -z $__BACKUP_INCREMENTAL_FILE ]" "get_backup_dest_filename must return someting"
+	ASSERT "[ ! -z $__BACKUP_DEST_FILENAME ]" "__get_backup_filenames must return __BACKUP_DEST_FILENAME"
+	ASSERT "[ ! -e $__BACKUP_DEST_FILENAME ]" "__get_backup_filenames returns [$__BACKUP_DEST_FILENAME] that exists, I'm not going to overwrite!"
+	ASSERT "[ ! -z $__BACKUP_INCREMENTAL_FILE ]" "__get_backup_filenames must return someting"
 
 	__get_excludes_cmdline $DEST
 	# NOTE:  -C $SOURCE if for extracting prefix from files
