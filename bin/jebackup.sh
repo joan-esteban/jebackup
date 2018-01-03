@@ -23,7 +23,7 @@ function get_args_params(){
 	while getopts ":s:d:vhr:c:f:X:" OPT; do
 		case $OPT in
 			s)
-				SOURCE_FOLDER="${OPTARG}"
+				SOURCE_FOLDER="${SOURCE_FOLDER} ${OPTARG}"
 				;;
 			d)
 				DEST_FOLDER="${OPTARG}"
@@ -100,14 +100,14 @@ if [ ! -z $CONFIG_FILE ]; then
 	source "$CONFIG_FILE"
 fi
 
-ASSERT "[ ! -z $SOURCE_FOLDER ]" "you must set source folder!"
+ASSERT "[ ! -z \"$SOURCE_FOLDER\" ]" "you must set source folder!"
 ASSERT "[ ! -z $DEST_FOLDER ]" "you must set destination folder!"
 
 # TODO : In the future the engine could be changed
 source $(dirname $0)/lib/tgzengine.sh
 
-create_delta_backup "$DEST_FOLDER" "$SOURCE_FOLDER" 
-
+create_delta_backup "$DEST_FOLDER" $SOURCE_FOLDER
+ASSERT "[ $? -eq 0 ]" "Fails create_delta_backup  command!"
 if [ ! -z $RESULT_FILE ] ; then
 	output_result > $RESULT_FILE 
 else
