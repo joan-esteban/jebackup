@@ -22,7 +22,7 @@ function filter_progress(){
 function setUp(){
 	__TMP_DATA_TO_BACKUP=$(mktemp -d)
 	VERBOSE "setting up test: copying data to: $__TMP_DATA_TO_BACKUP"
-	cp -av ${DATASET}/set1 $__TMP_DATA_TO_BACKUP > /dev/null 2>&1
+	cp -av ${DATASET}/* $__TMP_DATA_TO_BACKUP > /dev/null 2>&1
 	
 	__TMP_FOLDER_TO_STORE_BACKUP=$(mktemp -d)
 	VERBOSE "setting up test: created empty folder to store backups: $__TMP_FOLDER_TO_STORE_BACKUP"
@@ -99,6 +99,19 @@ function check_tgz_like_original_folder_with_exclusions(){
 	assertEquals "Tgz and folder are equals" $? 0 
 	rm -Rf $__TMP
 }
+# $1 -> original folder
+# $2 -> tgz
+# $3...n -> exclusions patterns for diff
+function check_tgz_exact_as_original_folder_no_prefix_extraction(){
+	local __FOLDER="$1"
+	local __TMP=$(mktemp -d)
+	local __TGZ="$2"
+	shift 2
+	untar_tgzs $__TMP $__TGZ
+	check_contents_folder_equals "$__FOLDER" "$__TMP/$__FOLDER" $*
+	assertEquals "Tgz and folder are equals" $? 0 
+	rm -Rf $__TMP
+}
 
 ###############################################################################
 # TEST
@@ -161,7 +174,16 @@ test_exclude_pattern(){
 	check_tgz_like_original_folder_with_exclusions  "$__TMP_DATA_TO_BACKUP" "$DELTA_BACKUP_RESULT" --exclude "*.txt"
 }
 
+test_multi_sources_folders(){
+	local _RESULT_FILE=$__TMP_FOLDER_TO_STORE_BACKUP/result.txt
+	VERBOSE using folder "[$__TMP_FOLDER_TO_STORE_BACKUP]"
+	$SNAPSHOT -s ${__TMP_DATA_TO_BACKUP}/set1 -s ${__TMP_DATA_TO_BACKUP}/set2 -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE 
+	assertEquals "jbackup returns error" $? 0
 
+	. $_RESULT_FILE 
+	VERBOSE "generated tgz: $DELTA_BACKUP_RESULT"
+	check_tgz_exact_as_original_folder_no_prefix_extraction  "$__TMP_DATA_TO_BACKUP" "$DELTA_BACKUP_RESULT"
+}
 
 set_logger_level $LOG_LEVEL_WARNING_CTE
 source $SHUNIT2
