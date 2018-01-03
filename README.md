@@ -1,13 +1,16 @@
 [![Build Status](https://www.travis-ci.org/joan-esteban/jebackup.svg?branch=master)](https://www.travis-ci.org/joan-esteban/jebackup)
 
 
-# jebackup v 0.9.5
+# jebackup v 0.9.6
 Simple backup system based on tgz differentials written in bash. 
 
 It is composed by two parts:
 - jebackup.sh : Do the incremental backup in tgz files
 - jerotate.sh : Take care of old backup removing it
 
+# Release history
+### jebackup v 0.9.6
+- Add multiples source folder to be backup (if multiples folder it keep full path on backup result)
 
 # Quick setup
 
