@@ -94,6 +94,8 @@ function show_what_are_logger_showing(){
 function set_defaults_values(){
 	GENERATED_BACKUP_FILE_PATTERN="%Y%m%d-%s"
 	EXCLUDE_PATTERNS_FROM_BACKUP='core|*.swp|*~'
+	METHOD_DISCARD=none
+	METHOD_ROTATE=none
 }
 
 
