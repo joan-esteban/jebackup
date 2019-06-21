@@ -185,5 +185,20 @@ test_multi_sources_folders(){
 	check_tgz_exact_as_original_folder_no_prefix_extraction  "$__TMP_DATA_TO_BACKUP" "$DELTA_BACKUP_RESULT"
 }
 
+test_backup_returns_error_if_coudlnt_create_result_file() {
+	local _RESULT_FILE=/dev/full
+	VERBOSE using folder "[$__TMP_FOLDER_TO_STORE_BACKUP]"
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE 
+	assertEquals "jbackup returns error if couldn't create result file " $? 1
+}
+
+
+test_backup_no_error_if_result_file_is_dev_null() {
+	local _RESULT_FILE=/dev/null
+	VERBOSE using folder "[$__TMP_FOLDER_TO_STORE_BACKUP]"
+	$SNAPSHOT -s $__TMP_DATA_TO_BACKUP -d $__TMP_FOLDER_TO_STORE_BACKUP -r $_RESULT_FILE 
+	assertEquals "jbackup returns ok, if you don't want result file setting to /dev/null" $? 0
+}
+
 set_logger_level $LOG_LEVEL_WARNING_CTE
 source $SHUNIT2
