@@ -1,7 +1,10 @@
 
 all: test
 
-shunit2-2.1.6:
+curl:
+	which curl || (echo "\nneed curl, try: \n\n \tsudo apt-get update\n \tsudo apt-get install curl\n" && exit 1)
+	
+shunit2-2.1.6: curl
 	# https://github.com/soulseekah/test-shunit2-travis/blob/master/.travis.yml
 	curl -L "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shunit2/shunit2-2.1.6.tgz" | tar zx
 
